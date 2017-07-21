@@ -1,0 +1,101 @@
+#!/bin/sh
+
+#
+# Iconizer shell script by Steve Richey (srichey@floatlearning.com)
+# Modified by Rich Ellis (rich@richellis.net) based on contributions on Github from crishoj, giria
+# https://gist.github.com/steverichey/8493f3bd31ae71a9c933/forks
+# Further modified by Christoph Gigi Fuchs (dergigi@gmail.com) to add SVG support
+#
+# This is a simple tool to generate all necessary app icon sizes and the JSON file for an *EXISTING* Xcode project from one file.
+# To use: specify the path to your vector graphic (PDF format) and the path to your Xcode folder containing myGastspiel-Images.xcassets
+# Example: sh iconizer.sh MyVectorGraphic.pdf /Path/to/Xcode-project/Assets.xcassets
+#
+# Requires ImageMagick: http://www.imagemagick.org/
+# Requires GhostScript: http://www.ghostscript.com/
+#
+# Install dependencies with Homebrew: http://brew.sh/ 
+#    brew install imagemagic
+#    brew install ghostscript
+# And with npm: https://www.npmjs.com/
+#    npm install svgexport -g	
+
+# Exit on first error
+set -e
+
+if [ $# -ne 2 ]
+  then
+        echo "\nUsage: sh iconizer.sh file.pdf FolderName\n"
+elif [ ! -e "$1" ]
+    then
+        echo "Did not find file $1, expected path to a vector image file.\n"
+elif [ ${1: -4} != ".pdf" -a ${1: -4} != ".svg" ]
+    then
+        echo "File $1 is not a vector image file! Expected PDF or SVG file.\n"
+elif [ ! -d "$2/AppIcon.appiconset/" ]
+    then
+        echo "Did not find Xcode folder $2, expected folder which contains AppIcon.appiconset/ \n"
+elif [ ! -x "$(command -v convert)" ]
+    then
+        echo "Executable 'convert' not found in path. Please install ImageMagick."
+elif [ ! -x "$(command -v gs)" ]
+    then
+        echo "Executable 'gs' not found in path. Please install GhostScript."
+elif [ ! -x "$(command -v svgexport)" ]
+    then
+        echo "Executable 'svgexport' not found in path. Please install svgexport via 'npm install svgexport -g'."
+else
+    echo "Creating icons from $1 into $2/AppIcon.appiconset/..."
+
+    for i in 16 20 29 32 40 50 57 58 60 64 72 76 80 87 100 114 120 128 144 152 167 180 256 512 1024
+        do
+            echo "Creating $i px icon"
+			if [ ${1: -4} == ".pdf" ]
+				then
+					convert -density 400 $1 -scale $ix$i $2/AppIcon.appiconset/appicon_$i.png
+			else
+				svgexport $1 $2/AppIcon.appiconset/appicon_$i.png $i:$i
+			fi
+    done
+
+    echo "Created app icon files, writing Contents.json file..."
+
+    echo '{"images":[
+{\n"size":"20x20",\n"idiom":"iphone",\n"filename":"appicon_40.png",\n"scale":"2x"\n},
+{\n"size":"20x20",\n"idiom":"iphone",\n"filename":"appicon_60.png",\n"scale":"3x"\n},
+{\n"size":"29x29",\n"idiom":"iphone",\n"filename":"appicon_29.png",\n"scale":"1x"\n},
+{\n"size":"29x29",\n"idiom":"iphone",\n"filename":"appicon_58.png",\n"scale":"2x"\n},
+{\n"size":"29x29",\n"idiom":"iphone",\n"filename":"appicon_87.png",\n"scale":"3x"\n},
+{\n"size":"40x40",\n"idiom":"iphone",\n"filename":"appicon_80.png",\n"scale":"2x"\n},
+{\n"size":"40x40",\n"idiom":"iphone",\n"filename":"appicon_120.png",\n"scale":"3x"\n},
+{\n"size":"57x57",\n"idiom":"iphone",\n"filename":"appicon_57.png",\n"scale":"1x"\n},
+{\n"size":"57x57",\n"idiom":"iphone",\n"filename":"appicon_114.png",\n"scale":"2x"\n},
+{\n"size":"60x60",\n"idiom":"iphone",\n"filename":"appicon_120.png",\n"scale":"2x"\n},
+{\n"size":"60x60",\n"idiom":"iphone",\n"filename":"appicon_180.png",\n"scale":"3x"\n},
+{\n"size":"20x20",\n"idiom":"ipad",\n"filename":"appicon_20.png",\n"scale":"1x"\n},
+{\n"size":"20x20",\n"idiom":"ipad",\n"filename":"appicon_40.png",\n"scale":"2x"\n},
+{\n"size":"29x29",\n"idiom":"ipad",\n"filename":"appicon_29.png",\n"scale":"1x"\n},
+{\n"size":"29x29",\n"idiom":"ipad",\n"filename":"appicon_58.png",\n"scale":"2x"\n},
+{\n"size":"40x40",\n"idiom":"ipad",\n"filename":"appicon_40.png",\n"scale":"1x"\n},
+{\n"size":"40x40",\n"idiom":"ipad",\n"filename":"appicon_80.png",\n"scale":"2x"\n},
+{\n"size":"50x50",\n"idiom":"ipad",\n"filename":"appicon_50.png",\n"scale":"1x"\n},
+{\n"size":"50x50",\n"idiom":"ipad",\n"filename":"appicon_100.png",\n"scale":"2x"\n},
+{\n"size":"72x72",\n"idiom":"ipad",\n"filename":"appicon_72.png",\n"scale":"1x"\n},
+{\n"size":"72x72",\n"idiom":"ipad",\n"filename":"appicon_144.png",\n"scale":"2x"\n},
+{\n"size":"76x76",\n"idiom":"ipad",\n"filename":"appicon_76.png",\n"scale":"1x"\n},
+{\n"size":"76x76",\n"idiom":"ipad",\n"filename":"appicon_152.png",\n"scale":"2x"\n},
+{\n"size":"83.5x83.5",\n"idiom":"ipad",\n"filename":"appicon_167.png",\n"scale":"2x"\n},
+{\n"size":"120x120",\n"idiom":"car",\n"filename":"appicon_120.png",\n"scale":"1x"\n},
+{\n"size":"16x16",\n"idiom":"mac",\n"filename":"appicon_16.png",\n"scale":"1x"\n},
+{\n"size":"16x16",\n"idiom":"mac",\n"filename":"appicon_32.png",\n"scale":"2x"\n},
+{\n"size":"32x32",\n"idiom":"mac",\n"filename":"appicon_32.png",\n"scale":"1x"\n},
+{\n"size":"32x32",\n"idiom":"mac",\n"filename":"appicon_64.png",\n"scale":"2x"\n},
+{\n"size":"128x128",\n"idiom":"mac",\n"filename":"appicon_128.png",\n"scale":"1x"\n},
+{\n"size":"128x128",\n"idiom":"mac",\n"filename":"appicon_256.png",\n"scale":"2x"\n},
+{\n"size":"256x256",\n"idiom":"mac",\n"filename":"appicon_256.png",\n"scale":"1x"\n},
+{\n"size":"256x256",\n"idiom":"mac",\n"filename":"appicon_512.png",\n"scale":"2x"\n},
+{\n"size":"512x512",\n"idiom":"mac",\n"filename":"appicon_512.png",\n"scale":"1x"\n},
+{\n"size":"512x512",\n"idiom":"mac",\n"filename":"appicon_1024.png",\n"scale":"2x"\n}\n],
+"info":{\n"version":1,\n"author":"xcode"\n}\n}' > "$2/AppIcon.appiconset/Contents.json"
+
+    echo "Complete!"
+fi
