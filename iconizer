@@ -94,7 +94,8 @@ else
 {\n"size":"256x256",\n"idiom":"mac",\n"filename":"appicon_256.png",\n"scale":"1x"\n},
 {\n"size":"256x256",\n"idiom":"mac",\n"filename":"appicon_512.png",\n"scale":"2x"\n},
 {\n"size":"512x512",\n"idiom":"mac",\n"filename":"appicon_512.png",\n"scale":"1x"\n},
-{\n"size":"512x512",\n"idiom":"mac",\n"filename":"appicon_1024.png",\n"scale":"2x"\n}\n],
+{\n"size":"512x512",\n"idiom":"mac",\n"filename":"appicon_1024.png",\n"scale":"2x"\n},
+{\n"size":"1024x1024",\n"idiom":"ios-marketing",\n"filename":"appicon_1024.png",\n"scale":"1x"\n}\n],
 "info":{\n"version":1,\n"author":"xcode"\n}\n}' > "$2/AppIcon.appiconset/Contents.json"
 
     echo "Complete!"
